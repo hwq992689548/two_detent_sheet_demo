@@ -125,7 +125,7 @@ class _TwoDetentSheetBody extends StatelessWidget {
         // physical feedback of native sheets.
         if (notification.extent == initialDetent ||
             notification.extent == maxDetent) {
-          HapticFeedback.selectionClick();
+          HapticFeedback.selectionClick().ignore();
         }
         return false;
       },

@@ -181,7 +181,7 @@ class _ActionRow<T> extends StatelessWidget {
 
     return InkWell(
       onTap: () {
-        HapticFeedback.selectionClick();
+        HapticFeedback.selectionClick().ignore();
         Navigator.of(context).pop<T>(action.value);
       },
       child: ConstrainedBox(
@@ -246,7 +246,7 @@ class _CancelFooter extends StatelessWidget {
           Divider(height: 0.5, thickness: 0.5, color: dividerColor),
           InkWell(
             onTap: () {
-              HapticFeedback.selectionClick();
+              HapticFeedback.selectionClick().ignore();
               Navigator.of(context).pop();
             },
             child: ConstrainedBox(

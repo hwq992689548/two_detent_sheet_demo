@@ -647,7 +647,7 @@ class _SheetDemoButton extends StatelessWidget {
     return FilledButton.icon(
       style: style,
       onPressed: () {
-        HapticFeedback.selectionClick();
+        HapticFeedback.selectionClick().ignore();
         onTap();
       },
       icon: Icon(icon, size: 18),

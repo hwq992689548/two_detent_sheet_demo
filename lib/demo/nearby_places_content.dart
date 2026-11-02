@@ -45,7 +45,7 @@ class NearbyPlacesContent extends StatelessWidget {
               place: place,
               secondaryColor: secondary,
               onTap: () {
-                HapticFeedback.selectionClick();
+                HapticFeedback.selectionClick().ignore();
                 Navigator.of(context).pop<String>(place.name);
               },
             );

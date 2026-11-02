@@ -2,6 +2,8 @@
 
 一个完全基于 Flutter SDK、无第三方依赖的二段式底部面板 / iOS 风格 Action Sheet。
 
+支持 iOS、Android 和 macOS（macOS 上使用鼠标/触控板拖动面板与列表）。
+
 - 首段默认 **45%**，二段默认 **90%**，两档高度均可配置。
 - 面板跟手拖动，松手按位置和速度吸附到最近一段。
 - 面板内包含列表时：首段上滑优先展开面板；二段列表才滚动；列表回到顶部后继续下拉，手势交还给面板，面板跟手收回首段。
@@ -17,7 +19,14 @@
 export PATH="$HOME/development/flutter/bin:$PATH"
 cd two_detent_sheet_demo
 flutter pub get
-flutter run            # 选择 iOS 模拟器或 Android 设备
+flutter run            # 选择 iOS 模拟器、Android 设备或 macOS
+flutter run -d macos   # 直接运行 macOS 桌面版
+```
+
+macOS 目标已包含在工程中；如果是从旧版本拉取、缺少 `macos/` 目录，执行一次：
+
+```bash
+flutter create --platforms=macos .
 ```
 
 验证：
