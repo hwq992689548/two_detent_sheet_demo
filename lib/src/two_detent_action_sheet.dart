@@ -1,3 +1,5 @@
+import 'dart:math' as math;
+
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 
@@ -101,62 +103,95 @@ class _ActionSheetContent<T> extends StatelessWidget {
     final bool hasLeading = actions.any(
       (TwoDetentSheetAction<T> action) => action.icon != null,
     );
+    final double footerHeight = _footerHeight(context);
 
-    return Column(
-      children: <Widget>[
-        Expanded(
-          child: CustomScrollView(
-            controller: scrollController,
-            slivers: <Widget>[
-              TwoDetentSheetHeaderSliver(
-                title: title,
-                backgroundColor: surfaceColor,
-                showDivider: message != null,
+    final List<Widget> contentSlivers = <Widget>[
+      TwoDetentSheetHeaderSliver(
+        title: title,
+        backgroundColor: surfaceColor,
+        showDivider: message != null,
+      ),
+      if (message != null)
+        SliverToBoxAdapter(
+          child: Padding(
+            padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
+            child: Text(
+              message!,
+              textAlign: TextAlign.center,
+              style: TextStyle(
+                fontSize: 13,
+                height: 1.35,
+                color: secondaryColor,
+                letterSpacing: -0.1,
               ),
-              if (message != null)
-                SliverToBoxAdapter(
-                  child: Padding(
-                    padding: const EdgeInsets.fromLTRB(24, 12, 24, 8),
-                    child: Text(
-                      message!,
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        fontSize: 13,
-                        height: 1.35,
-                        color: secondaryColor,
-                        letterSpacing: -0.1,
-                      ),
-                    ),
-                  ),
-                ),
-              SliverList.separated(
-                itemCount: actions.length,
-                itemBuilder: (BuildContext context, int index) {
-                  return _ActionRow<T>(
-                    action: actions[index],
-                    hasLeading: hasLeading,
-                  );
-                },
-                separatorBuilder: (BuildContext context, int index) {
-                  return Divider(
-                    height: 0.5,
-                    thickness: 0.5,
-                    color: dividerColor,
-                    indent: hasLeading ? 60 : 20,
-                  );
-                },
-              ),
-              const SliverToBoxAdapter(child: SizedBox(height: 12)),
-            ],
+            ),
           ),
         ),
-        _CancelFooter(
-          label: cancelLabel,
-          surfaceColor: surfaceColor,
-          dividerColor: dividerColor,
-        ),
-      ],
+      SliverList.separated(
+        itemCount: actions.length,
+        itemBuilder: (BuildContext context, int index) {
+          return _ActionRow<T>(action: actions[index], hasLeading: hasLeading);
+        },
+        separatorBuilder: (BuildContext context, int index) {
+          return Divider(
+            height: 0.5,
+            thickness: 0.5,
+            color: dividerColor,
+            indent: hasLeading ? 60 : 20,
+          );
+        },
+      ),
+      const SliverToBoxAdapter(child: SizedBox(height: 12)),
+    ];
+
+    return LayoutBuilder(
+      builder: (BuildContext context, BoxConstraints constraints) {
+        // The modal route animates the sheet from zero height, and callers can
+        // configure a very small first detent. A pinned footer cannot fit in
+        // those cases, so fall back to a single scrollable that includes the
+        // cancel row instead of overflowing the Column.
+        final bool tooShort =
+            constraints.maxHeight.isFinite &&
+            constraints.maxHeight <= footerHeight;
+
+        if (tooShort) {
+          return CustomScrollView(
+            controller: scrollController,
+            slivers: <Widget>[
+              ...contentSlivers,
+              SliverToBoxAdapter(
+                child: _CancelFooter(
+                  label: cancelLabel,
+                  surfaceColor: surfaceColor,
+                  dividerColor: dividerColor,
+                ),
+              ),
+            ],
+          );
+        }
+
+        return Column(
+          children: <Widget>[
+            Expanded(
+              child: CustomScrollView(
+                controller: scrollController,
+                slivers: contentSlivers,
+              ),
+            ),
+            _CancelFooter(
+              label: cancelLabel,
+              surfaceColor: surfaceColor,
+              dividerColor: dividerColor,
+            ),
+          ],
+        );
+      },
     );
+  }
+
+  double _footerHeight(BuildContext context) {
+    final double textHeight = MediaQuery.textScalerOf(context).scale(17) * 1.25;
+    return math.max(56.0, textHeight + 24.0) + 0.5;
   }
 }
 

@@ -80,6 +80,20 @@ void main() {
     expect(find.text('result: null'), findsOneWidget);
   });
 
+  testWidgets('very small first detent does not overflow', (
+    WidgetTester tester,
+  ) async {
+    _setUpPhone(tester);
+    await tester.pumpWidget(
+      const MaterialApp(home: _ActionHarness(initialDetent: 0.05)),
+    );
+
+    await tester.tap(find.text('open'));
+    await tester.pumpAndSettle();
+
+    expect(tester.takeException(), isNull);
+  });
+
   testWidgets('handles large text on a compact phone', (
     WidgetTester tester,
   ) async {
@@ -136,9 +150,10 @@ void _setUpPhone(WidgetTester tester) {
 }
 
 class _ActionHarness extends StatefulWidget {
-  const _ActionHarness({this.actionCount = 4});
+  const _ActionHarness({this.actionCount = 4, this.initialDetent = 0.45});
 
   final int actionCount;
+  final double initialDetent;
 
   @override
   State<_ActionHarness> createState() => _ActionHarnessState();
@@ -166,6 +181,7 @@ class _ActionHarnessState extends State<_ActionHarness> {
       context: context,
       title: '分享到',
       message: '选择要执行的操作',
+      initialDetent: widget.initialDetent,
       actions: _sheetActions,
       backgroundColor: Colors.white,
     );
